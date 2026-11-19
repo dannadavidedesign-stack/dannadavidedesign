@@ -31,6 +31,24 @@ jobs:
         run: |
           mkdir public
           cp -R index.html project.html assets css js public/
+          python3 - <<'PYTHON'
+          from hashlib import sha256
+          from pathlib import Path
+
+          root = Path("public")
+          assets = {}
+
+          for asset in [*root.glob("css/*.css"), *root.glob("js/*.js")]:
+              source = asset.relative_to(root).as_posix()
+              digest = sha256(asset.read_bytes()).hexdigest()[:16]
+              assets[source] = f"{source}?v={digest}"
+
+          for page in (root / "index.html", root / "project.html"):
+              html = page.read_text(encoding="utf-8")
+              for source, versioned in assets.items():
+                  html = html.replace(f'"{source}"', f'"{versioned}"')
+              page.write_text(html, encoding="utf-8")
+          PYTHON
 
       - name: Prepara i file per la pubblicazione
         uses: actions/upload-pages-artifact@v3

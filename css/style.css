@@ -672,9 +672,8 @@ a.work-item:hover .work-category {
 
 .contact-subtitle {
     font-size: 1.1rem;
-    color: var(--black-40);
+    color: var(--black-60);
     font-weight: 300;
-    margin-bottom: 60px;
 }
 
 .contact-email {
@@ -697,22 +696,24 @@ a.work-item:hover .work-category {
 }
 
 .contact-socials {
-    margin-top: 60px;
+    margin-top: 32px;
     display: flex;
+    flex-wrap: wrap;
     justify-content: center;
-    gap: 40px;
+    gap: 16px 32px;
+    list-style: none;
 }
 
 .social-link {
     font-size: 0.8rem;
     letter-spacing: 2px;
     text-transform: uppercase;
-    color: var(--black-40);
+    color: var(--black-60);
     transition: color 0.3s;
     position: relative;
 }
 
-.social-link::after {
+a.social-link::after {
     content: '';
     position: absolute;
     bottom: -4px;
@@ -723,11 +724,11 @@ a.work-item:hover .work-category {
     transition: width 0.35s ease;
 }
 
-.social-link:hover::after {
+a.social-link:hover::after {
     width: 100%;
 }
 
-.social-link:hover {
+a.social-link:hover {
     color: var(--accent);
 }
 
