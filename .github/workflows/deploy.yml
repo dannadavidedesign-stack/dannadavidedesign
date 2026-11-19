@@ -15,7 +15,7 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  build-and-deploy:
+  deploy:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -24,26 +24,13 @@ jobs:
       - name: Checkout del codice
         uses: actions/checkout@v4
 
-      # Se il sito è solo HTML/CSS/JS puro (senza package.json), elimina i 2 step qui sotto
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: "npm"
-
-      - name: Installa dipendenze e compila
-        run: |
-          npm ci
-          npm run build
-
       - name: Configura Pages
         uses: actions/configure-pages@v5
 
       - name: Prepara i file per la pubblicazione
         uses: actions/upload-pages-artifact@v3
         with:
-          # Usa "./dist" (Vite/Astro/Vue), "./build" (CRA) oppure "." se è HTML puro
-          path: "./dist"
+          path: "."
 
       - name: Pubblica su GitHub Pages
         id: deployment
