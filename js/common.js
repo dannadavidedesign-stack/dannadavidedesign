@@ -1,6 +1,6 @@
 /* ============================================
    DAVIDE D'ANNA — Shared behavior
-   (loader, cursor, navbar, reveals, stats, parallax)
+   (loader, cursor, navbar, reveals, parallax)
    ============================================= */
 
 // ---- HTML ESCAPE (shared by main.js and project.js) ----
@@ -160,44 +160,6 @@ function setupReveals() {
     observeReveals(document);
 }
 
-// ---- STAT COUNTER ANIMATION ----
-function initStatCounters() {
-    const statsContainer = document.querySelector('.about-stats');
-    if (!statsContainer) return;
-
-    const statObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                const stats = entry.target.querySelectorAll('.stat-number');
-                stats.forEach(stat => {
-                    const target = parseInt(stat.getAttribute('data-target'));
-                    animateCounter(stat, target);
-                });
-                statObserver.unobserve(entry.target);
-            }
-        });
-    }, { threshold: 0.5 });
-
-    statObserver.observe(statsContainer);
-}
-
-function animateCounter(el, target) {
-    let current = 0;
-    const duration = 2000;
-    const step = target / (duration / 16);
-
-    function update() {
-        current += step;
-        if (current < target) {
-            el.textContent = Math.floor(current);
-            requestAnimationFrame(update);
-        } else {
-            el.textContent = target + '+';
-        }
-    }
-    update();
-}
-
 // ---- PARALLAX SUBTLE EFFECTS ----
 (function initParallax() {
     window.addEventListener('scroll', () => {
@@ -257,6 +219,5 @@ function initMagnetic() {
 })();
 
 window.addEventListener('DOMContentLoaded', () => {
-    initStatCounters();
     initMagnetic();
 });

@@ -27,10 +27,15 @@ jobs:
       - name: Configura Pages
         uses: actions/configure-pages@v5
 
+      - name: Raccogli i file del sito pubblico
+        run: |
+          mkdir public
+          cp -R index.html project.html assets css js public/
+
       - name: Prepara i file per la pubblicazione
         uses: actions/upload-pages-artifact@v3
         with:
-          path: "."
+          path: "public"
 
       - name: Pubblica su GitHub Pages
         id: deployment

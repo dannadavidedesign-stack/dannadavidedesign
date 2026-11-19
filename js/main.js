@@ -1,6 +1,6 @@
 /* ============================================
    DAVIDE D'ANNA — Home page logic
-   (dynamic work grid from /api/projects)
+   (dynamic work grid)
    ============================================= */
 
 const PLACEHOLDER_SVG = `
@@ -23,7 +23,7 @@ function createWorkItem(project, index) {
     item.className = 'work-item reveal-up'
         + (index === 0 ? ' work-item--large' : '')
         + (index === 3 ? ' work-item--wide' : '');
-    item.href = (window.BASE_PATH || '') + '/progetti/' + encodeURIComponent(project.slug);
+    item.href = projectPageUrl(project.slug);
 
     const cover = projectCoverUrl(project);
     let imageHtml;
@@ -49,9 +49,11 @@ async function loadProjects() {
     if (!grid) return;
 
     try {
-        const res = await fetch(window.API_BASE + '/api/projects');
-        if (!res.ok) throw new Error('API non disponibile');
-        const projects = await res.json();
+        const projects = await fetchProjects();
+        if (projects.length === 0) {
+            grid.innerHTML = '<p class="work-grid-message">I progetti selezionati saranno pubblicati qui.</p>';
+            return;
+        }
 
         projects.forEach((project, index) => {
             grid.appendChild(createWorkItem(project, index));
@@ -60,7 +62,7 @@ async function loadProjects() {
         observeReveals(grid);
         initTilt();
     } catch (err) {
-        grid.innerHTML = '<p class="work-grid-error">Non è stato possibile caricare i progetti.</p>';
+        grid.innerHTML = '<p class="work-grid-message">Non è stato possibile caricare i progetti.</p>';
     }
 }
 

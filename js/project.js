@@ -2,21 +2,12 @@
    DAVIDE D'ANNA — Project detail page logic
    ============================================= */
 
-const PLACEHOLDER_IMG_SVG =
-    "data:image/svg+xml," + encodeURIComponent(
-        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">' +
-        '<rect width="400" height="300" fill="rgba(15,12,10,0.06)"/>' +
-        '<circle cx="200" cy="150" r="64" fill="none" stroke="rgba(15,12,10,0.2)" stroke-width="1.5"/>' +
-        '<path d="M120 190 L170 130 L210 155 L260 100 L300 120" stroke="rgba(15,12,10,0.25)" stroke-width="2" fill="none"/>' +
-        '</svg>'
-    );
+function projectSlug() {
+    const slug = new URLSearchParams(window.location.search).get('slug');
+    if (slug) return slug;
 
-function slugFromPath() {
-    const path = window.location.pathname;
-    const parts = path.split('/').filter(Boolean);
-    const idx = parts.lastIndexOf('progetti');
-    if (idx === -1) return decodeURIComponent(parts[parts.length - 1] || '');
-    return decodeURIComponent(parts[idx + 1] || '');
+    const legacyRoute = window.location.pathname.match(/\/progetti\/([^/]+)\/?$/);
+    return legacyRoute ? decodeURIComponent(legacyRoute[1]) : '';
 }
 
 function imgSrc(img) {
@@ -31,14 +22,14 @@ function captionHtml(project, img, i) {
     return parts.length ? parts.join(' · ') : '';
 }
 
-function renderProject(project) {
+function renderProject(project, relatedProjects) {
     const root = document.getElementById('project-shell');
     if (!root) return;
 
     root.innerHTML = `
     <article class="project-page">
         <div class="container project-header">
-            <a href="${window.BASE_PATH || ''}/" class="back-link">← Torna al portfolio</a>
+            <a href="./#work" class="back-link">← Torna al portfolio</a>
             <p class="section-label">${escapeHtml(project.category || 'Progetto')}</p>
             <h1 class="project-title">${escapeHtml(project.title)}</h1>
             ${project.year ? `<p class="project-year">${escapeHtml(project.year)}</p>` : ''}
@@ -80,17 +71,18 @@ function renderProject(project) {
 
     // Prev / next
     const nav = document.getElementById('project-nav');
-    if (nav && window.__relatedProjects && window.__relatedProjects.length > 1) {
-        const all = window.__relatedProjects;
+    if (nav && relatedProjects.length > 1) {
+        const all = relatedProjects;
         const i = all.findIndex(p => p.slug === project.slug);
+        if (i === -1) return;
         const prev = all[(i - 1 + all.length) % all.length];
         const next = all[(i + 1) % all.length];
         nav.innerHTML = `
-            <a class="project-nav-item project-nav-prev" href="${window.BASE_PATH || ''}/progetti/${encodeURIComponent(prev.slug)}">
+            <a class="project-nav-item project-nav-prev" href="${projectPageUrl(prev.slug)}">
                 <span>&larr; Precedente</span>
                 <strong>${escapeHtml(prev.title)}</strong>
             </a>
-            <a class="project-nav-item project-nav-next" href="${window.BASE_PATH || ''}/progetti/${encodeURIComponent(next.slug)}">
+            <a class="project-nav-item project-nav-next" href="${projectPageUrl(next.slug)}">
                 <span>Successivo &rarr;</span>
                 <strong>${escapeHtml(next.title)}</strong>
             </a>`;
@@ -154,29 +146,20 @@ function initLightbox() {
 
 // ---- LOAD ----
 async function loadProjectPage() {
-    const slug = slugFromPath();
-
-    let res = await fetch(window.API_BASE + `/api/projects/by-slug/${encodeURIComponent(slug)}`);
-    if (res.status === 404) {
-        showNotFound();
-        return;
-    }
-    if (!res.ok) {
-        showLoadError();
-        return;
-    }
-    const project = await res.json();
-
     try {
-        const allRes = await fetch(window.API_BASE + '/api/projects');
-        if (allRes.ok) {
-            window.__relatedProjects = await allRes.json();
+        const slug = projectSlug();
+        const project = slug ? await fetchProject(slug) : null;
+        if (!project) {
+            showNotFound();
+            return;
         }
-    } catch (e) {
-        // non-blocking
-    }
 
-    renderProject(project);
+        document.title = project.title + ' — Davide D’Anna Design Solutions';
+        const relatedProjects = await fetchProjects().catch(() => []);
+        renderProject(project, relatedProjects);
+    } catch {
+        showLoadError();
+    }
 }
 
 function showNotFound() {
@@ -186,7 +169,7 @@ function showNotFound() {
             <p class="section-label">404</p>
             <h1>Progetto non trovato</h1>
             <p>Il progetto che cerchi non esiste o non è più pubblicato.</p>
-            <a href="${window.BASE_PATH || ''}/" class="contact-email" data-magnetic>
+            <a href="./#work" class="contact-email" data-magnetic>
                 <span>Torna al portfolio</span>
             </a>
         </div>`;
@@ -198,7 +181,7 @@ function showLoadError() {
         <div class="container project-error">
             <p class="section-label">Errore</p>
             <h1>Impossibile caricare il progetto</h1>
-            <a href="${window.BASE_PATH || ''}/" class="contact-email" data-magnetic>
+            <a href="./#work" class="contact-email" data-magnetic>
                 <span>Torna al portfolio</span>
             </a>
         </div>`;

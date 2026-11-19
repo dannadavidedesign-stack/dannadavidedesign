@@ -1,5 +1,5 @@
 /* ============================================
-   DAVIDE D'ANNA — Portfolio Design Studio
+   DAVIDE D'ANNA — Design Solutions
    Bold, red-orange driven palette:
    Pure white / transparent black / vivid red-orange dominant
 ============================================= */
@@ -148,10 +148,15 @@ a {
 }
 
 .logo {
-    font-weight: 700;
-    font-size: 1.4rem;
-    letter-spacing: 3px;
-    color: var(--black);
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+}
+
+.logo img {
+    display: block;
+    width: 50px;
+    height: auto;
 }
 
 .nav-links {
@@ -221,6 +226,7 @@ a {
 
 .hero-content {
     position: relative;
+    padding: 0 20px;
     text-align: center;
     z-index: 2;
 }
@@ -341,7 +347,7 @@ a {
     transform: translateY(0);
 }
 
-/* ---- WORK GRID (dynamic items from /api/projects) ---- */
+/* ---- WORK GRID ---- */
 a.work-item {
     display: flex;
     flex-direction: column;
@@ -391,7 +397,7 @@ a.work-item:hover .work-category {
     color: var(--accent-strong);
 }
 
-.work-grid-error {
+.work-grid-message {
     grid-column: 1 / -1;
     text-align: center;
     color: var(--black-40);
@@ -577,7 +583,7 @@ a.work-item:hover .work-category {
     font-weight: 600;
 }
 
-.service-card h4 {
+.service-card h3 {
     font-size: 1.25rem;
     font-weight: 400;
     margin-bottom: 20px;
@@ -604,31 +610,12 @@ a.work-item:hover .work-category {
 }
 
 .portrait-frame {
+    display: block;
     width: 100%;
-    aspect-ratio: 1;
     max-width: 380px;
-    background: var(--black-10);
+    height: auto;
     border-radius: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    overflow: hidden;
-}
-
-.portrait-frame::before {
-    content: '';
-    position: absolute;
-    bottom: -10%; right: -10%;
-    width: 60%; height: 60%;
-    border-radius: 50%;
-    background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
-}
-
-.portrait-frame svg {
-    width: 50%;
-    position: relative;
-    z-index: 2;
+    background: var(--black-10);
 }
 
 .about-title {
@@ -649,15 +636,9 @@ a.work-item:hover .work-category {
 }
 
 .about-stats {
-    display: flex;
-    gap: 50px;
-    margin-top: 50px;
+    margin-top: 44px;
     padding-top: 40px;
     border-top: 1px solid var(--black-20);
-}
-
-.stat {
-    text-align: left;
 }
 
 .stat-number {
@@ -1044,6 +1025,7 @@ a.work-item:hover .work-category {
 /* ---- RESPONSIVE ---- */
 @media (max-width: 900px) {
     .navbar { padding: 20px 28px; }
+    .navbar.scrolled { padding: 14px 28px; }
     .nav-links { gap: 24px; }
     .container { padding: 0 28px; }
 
@@ -1078,10 +1060,6 @@ a.work-item:hover .work-category {
         max-width: 260px;
     }
 
-    .about-stats {
-        justify-content: center;
-    }
-
     .project-page {
         padding-top: 130px;
     }
@@ -1110,16 +1088,21 @@ a.work-item:hover .work-category {
 
 @media (max-width: 600px) {
     .navbar { padding: 16px 20px; }
+    .navbar.scrolled { padding: 12px 20px; }
     .nav-links { gap: 18px; }
     .nav-links a { font-size: 0.75rem; }
     .container { padding: 0 20px; }
 
     .hero-title { letter-spacing: -1px; }
 
-    .about-stats {
-        flex-wrap: wrap;
-        gap: 30px;
+    .hero-tagline {
+        font-size: 0.8rem;
+        letter-spacing: 2px;
+        line-height: 1.6;
     }
+
+    .about { padding: 100px 0; }
+    .about-grid { gap: 40px; }
 
     .footer-content {
         flex-direction: column;
