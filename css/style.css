@@ -733,12 +733,17 @@ a.social-link:hover {
 }
 
 .footer-content {
-    display: flex;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
     align-items: center;
+    gap: 16px;
     font-size: 0.75rem;
     color: var(--black-40);
     letter-spacing: 1px;
+}
+
+.footer-content > :last-child {
+    text-align: right;
 }
 
 /* ---- PROJECT PAGE ---- */
@@ -1100,8 +1105,13 @@ a.social-link:hover {
     .about-grid { gap: 40px; }
 
     .footer-content {
-        flex-direction: column;
+        grid-template-columns: 1fr;
         gap: 8px;
+        text-align: center;
+    }
+
+    .footer-content > :last-child {
+        text-align: center;
     }
 
     body { cursor: auto; }
