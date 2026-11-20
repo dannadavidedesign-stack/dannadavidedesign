@@ -4,7 +4,7 @@ Portfolio di Davide D’Anna. [Visita il sito](https://davidedanna.com/)
 
 ## Come pubblicare un progetto su Sanity
 
-1. **Apri Sanity Studio.** Accedi con il tuo account e apri lo Studio del progetto `fttl92eh` dal [Sanity Manage]([https://www.sanity.io/manage](https://www.sanity.io/@o4rmfmi89/studio/h6y58zw26j1bv7e73hu6wibm/default/structure/project)).
+1. **Apri Sanity Studio.** Accedi con il tuo account e apri lo Studio del progetto `fttl92eh` dal [Sanity Manage]([https://www.sanity.io/@o4rmfmi89/studio/h6y58zw26j1bv7e73hu6wibm/default/structure/project]).
 2. **Crea un progetto.** Premi **+** e scegli **Progetto** o **Project**. Inserisci il titolo e premi **Generate** accanto a **Slug**. Lo slug è la parte dell’indirizzo che identifica il progetto.
 3. **Compila la scheda e carica le immagini.**
 
