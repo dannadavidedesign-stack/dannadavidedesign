@@ -42,9 +42,8 @@ function renderProject(project, relatedProjects) {
 
         <div class="container project-gallery-wrap">
             <div class="project-gallery" id="project-gallery"></div>
+            <nav class="project-nav" id="project-nav" aria-label="Navigazione tra progetti"></nav>
         </div>
-
-        <nav class="project-nav" id="project-nav"></nav>
     </article>`;
 
     const shell = root;
