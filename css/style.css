@@ -670,12 +670,6 @@ a.work-item:hover .work-category {
     color: var(--black-80);
 }
 
-.contact-subtitle {
-    font-size: 1.1rem;
-    color: var(--black-60);
-    font-weight: 300;
-}
-
 .contact-email {
     display: inline-flex;
     align-items: center;
