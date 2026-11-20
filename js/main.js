@@ -23,12 +23,12 @@ function createWorkItem(project, index) {
     item.className = 'work-item reveal-up'
         + (index === 0 ? ' work-item--large' : '')
         + (index === 3 ? ' work-item--wide' : '');
-    item.href = projectPageUrl(project.slug);
+    item.href = portfolio.projectPageUrl(project.slug);
 
     const cover = projectCoverUrl(project);
     let imageHtml;
     if (cover) {
-        imageHtml = `<img src="${escapeHtml(cover)}" alt="${escapeHtml(project.title)}" loading="lazy">`;
+        imageHtml = `<img src="${escapeHtml(cover)}" alt="${escapeHtml(project.images?.[0]?.alt_text || project.title)}" loading="lazy">`;
     } else {
         imageHtml = `<div class="work-placeholder">${PLACEHOLDER_SVG}</div>`;
     }
@@ -49,7 +49,7 @@ async function loadProjects() {
     if (!grid) return;
 
     try {
-        const projects = await fetchProjects();
+        const projects = await portfolio.fetchProjects();
         if (projects.length === 0) {
             grid.innerHTML = '<p class="work-grid-message">I progetti selezionati saranno pubblicati qui.</p>';
             return;

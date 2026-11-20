@@ -1,78 +1,99 @@
-// Use the public project ID and dataset from Sanity Manage. Leave the ID empty
-// while Sanity is unconfigured. The public site does not use an API token.
-const sanitySettings = {
-    projectId: '',
-    dataset: 'production'
-};
+import { createClient } from '@sanity/client';
+import { createImageUrlBuilder } from '@sanity/image-url';
 
-const sanityProjects = '*[_type == "portfolioProject" && defined(slug.current)]';
-const projectOrder = '| order(coalesce(sortOrder, 1000) asc, year desc, title asc)';
-const projectFields = `
-    "slug": slug.current,
-    title,
-    category,
-    year,
-    description,
-    "short_description": summary
+const client = createClient({
+    projectId: 'fttl92eh',
+    dataset: 'production',
+    apiVersion: '2025-02-19',
+    perspective: 'published',
+    useCdn: true,
+    withCredentials: false
+});
+
+const imageBuilder = createImageUrlBuilder(client);
+const projects = '*[_type == "project" && defined(slug.current) && defined(title)]';
+const projectOrder = '| order(coalesce(order, 2147483647) asc, year desc, title asc)';
+const projectFields = '"slug": slug.current, title, category, year';
+const imageFields = `"source": image{asset, crop, hotspot}, "alt_text": alt, caption`;
+const coverField = `
+    "cover": select(
+        defined(cover.image.asset->_id) => cover,
+        gallery[defined(image.asset->_id)][0]
+    ){${imageFields}}
 `;
-const imageFields = `
-    "url": asset->url,
-    "thumbnail_url": asset->url + "?w=960&fit=max&auto=format",
-    "alt_text": altText,
-    caption
-`;
 
-async function fetchJson(url) {
-    const response = await fetch(url);
-    if (!response.ok) throw new Error(`Richiesta non riuscita (${response.status})`);
-    return response.json();
+export function projectPageUrl(slug) {
+    return '/project.html?' + new URLSearchParams({ slug }).toString();
 }
 
-async function querySanity(query, slug) {
-    const { projectId, dataset } = sanitySettings;
-    const url = new URL(`https://${projectId}.apicdn.sanity.io/v2025-02-19/data/query/${encodeURIComponent(dataset)}`);
-    url.searchParams.set('query', query);
-    url.searchParams.set('perspective', 'published');
-    if (slug !== undefined) url.searchParams.set('$slug', JSON.stringify(slug));
-
-    const data = await fetchJson(url);
-    return data.result;
+function projectImage(image) {
+    const builder = imageBuilder.image(image.source).fit('max').auto('format');
+    return {
+        url: builder.width(1920).url(),
+        thumbnail_url: builder.width(960).url(),
+        alt_text: image.alt_text,
+        caption: image.caption
+    };
 }
 
-function usingLegacyProjectApi() {
-    return !sanitySettings.projectId && window.API_BASE != null;
-}
-
-function projectPageUrl(slug) {
-    const encodedSlug = encodeURIComponent(slug);
-    if (usingLegacyProjectApi()) return `${window.BASE_PATH || ''}/progetti/${encodedSlug}`;
-    return `project.html?slug=${encodedSlug}`;
-}
-
-async function fetchProjects() {
-    if (sanitySettings.projectId) {
-        return querySanity(`${sanityProjects} ${projectOrder} {
+export async function fetchProjects() {
+    const results = await client.fetch(`
+        ${projects} ${projectOrder} {
             ${projectFields},
-            "images": images[defined(asset->url)][0...1] { ${imageFields} }
-        }`);
-    }
+            "short_description": description,
+            ${coverField}
+        }
+    `);
 
-    if (usingLegacyProjectApi()) return fetchJson(window.API_BASE + '/api/projects');
-    return [];
+    return results.map(({ cover, ...project }) => ({
+        ...project,
+        images: cover ? [projectImage(cover)] : []
+    }));
 }
 
-async function fetchProject(slug) {
-    if (sanitySettings.projectId) {
-        return querySanity(`${sanityProjects}[slug.current == $slug][0] {
+export async function fetchProject(slug) {
+    const { project, relatedProjects } = await client.fetch(`{
+        "project": ${projects}[slug.current == $slug][0] {
             ${projectFields},
-            "images": images[defined(asset->url)] { ${imageFields} }
-        }`, slug);
-    }
+            "short_description": description,
+            "description": coalesce(pt::text(body), description),
+            ${coverField},
+            "gallery": gallery[defined(image.asset->_id)]{${imageFields}},
+            seo{
+                "title": coalesce(metaTitle, title),
+                "description": coalesce(metaDescription, description),
+                "ogTitle": coalesce(ogTitle, openGraph.title),
+                "ogDescription": coalesce(ogDescription, openGraph.description),
+                "image": coalesce(ogImage.image, ogImage, openGraph.image.image, openGraph.image, image){
+                    asset, crop, hotspot
+                },
+                "imageAlt": coalesce(ogImage.alt, openGraph.image.alt, image.alt),
+                noIndex
+            }
+        },
+        "relatedProjects": ${projects} ${projectOrder} { "slug": slug.current, title }
+    }`, { slug });
+    if (!project) return null;
 
-    if (!usingLegacyProjectApi()) return null;
+    const { cover, gallery, seo, ...fields } = project;
+    const images = [
+        ...(cover ? [cover] : []),
+        ...(gallery || []).filter(image => image.source.asset._ref !== cover?.source.asset._ref)
+    ].map(projectImage);
+    const seoImage = seo?.image?.asset ? seo.image : null;
+    const shareImage = seoImage || cover?.source;
+    const ogImage = shareImage
+        ? imageBuilder.image(shareImage).width(1200).height(630).fit('crop').format('jpg').url()
+        : '';
 
-    const response = await fetch(window.API_BASE + '/api/projects/by-slug/' + encodeURIComponent(slug));
-    if (response.status === 404) return null;
-    if (!response.ok) throw new Error(`Richiesta non riuscita (${response.status})`);
-    return response.json();
+    return {
+        ...fields,
+        images,
+        seo: {
+            ...seo,
+            ogImage,
+            imageAlt: (seoImage ? seo.imageAlt : cover?.alt_text) || project.title
+        },
+        relatedProjects
+    };
 }

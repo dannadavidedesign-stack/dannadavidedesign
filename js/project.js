@@ -29,7 +29,7 @@ function renderProject(project, relatedProjects) {
     root.innerHTML = `
     <article class="project-page">
         <div class="container project-header">
-            <a href="./#work" class="back-link">← Torna al portfolio</a>
+            <a href="/#work" class="back-link">← Torna al portfolio</a>
             <p class="section-label">${escapeHtml(project.category || 'Progetto')}</p>
             <h1 class="project-title">${escapeHtml(project.title)}</h1>
             ${project.year ? `<p class="project-year">${escapeHtml(project.year)}</p>` : ''}
@@ -78,11 +78,11 @@ function renderProject(project, relatedProjects) {
         const prev = all[(i - 1 + all.length) % all.length];
         const next = all[(i + 1) % all.length];
         nav.innerHTML = `
-            <a class="project-nav-item project-nav-prev" href="${projectPageUrl(prev.slug)}">
+            <a class="project-nav-item project-nav-prev" href="${portfolio.projectPageUrl(prev.slug)}">
                 <span>&larr; Precedente</span>
                 <strong>${escapeHtml(prev.title)}</strong>
             </a>
-            <a class="project-nav-item project-nav-next" href="${projectPageUrl(next.slug)}">
+            <a class="project-nav-item project-nav-next" href="${portfolio.projectPageUrl(next.slug)}">
                 <span>Successivo &rarr;</span>
                 <strong>${escapeHtml(next.title)}</strong>
             </a>`;
@@ -144,19 +144,57 @@ function initLightbox() {
     });
 }
 
+const siteUrl = 'https://davidedanna.com';
+
+function setMeta(attribute, key, content) {
+    let meta = document.head.querySelector(`meta[${attribute}="${key}"]`);
+    if (!meta) {
+        meta = document.createElement('meta');
+        meta.setAttribute(attribute, key);
+        document.head.appendChild(meta);
+    }
+    meta.content = content;
+}
+
+function setProjectMetadata(project) {
+    const { seo } = project;
+    const title = seo.title || project.title + ' — Davide D’Anna Design Solutions';
+    const description = (seo.description || project.short_description || project.description || '')
+        .replace(/\s+/g, ' ').trim();
+    const url = new URL(portfolio.projectPageUrl(project.slug), siteUrl).href;
+
+    document.title = title;
+    setMeta('property', 'og:title', seo.ogTitle || title);
+    if (description) setMeta('name', 'description', description);
+    if (seo.ogDescription || description) {
+        setMeta('property', 'og:description', seo.ogDescription || description);
+    }
+    if (seo.ogImage) {
+        setMeta('property', 'og:image', seo.ogImage);
+        setMeta('property', 'og:image:alt', seo.imageAlt);
+    }
+    setMeta('property', 'og:url', url);
+    if (seo.noIndex === true) setMeta('name', 'robots', 'noindex, follow');
+
+    const canonical = document.createElement('link');
+    canonical.rel = 'canonical';
+    canonical.href = url;
+    document.head.appendChild(canonical);
+}
+
 // ---- LOAD ----
 async function loadProjectPage() {
     try {
         const slug = projectSlug();
-        const project = slug ? await fetchProject(slug) : null;
+        const project = slug ? await portfolio.fetchProject(slug) : null;
         if (!project) {
+            setMeta('name', 'robots', 'noindex, follow');
             showNotFound();
             return;
         }
 
-        document.title = project.title + ' — Davide D’Anna Design Solutions';
-        const relatedProjects = await fetchProjects().catch(() => []);
-        renderProject(project, relatedProjects);
+        setProjectMetadata(project);
+        renderProject(project, project.relatedProjects);
     } catch {
         showLoadError();
     }
@@ -169,7 +207,7 @@ function showNotFound() {
             <p class="section-label">404</p>
             <h1>Progetto non trovato</h1>
             <p>Il progetto che cerchi non esiste o non è più pubblicato.</p>
-            <a href="./#work" class="contact-email" data-magnetic>
+            <a href="/#work" class="contact-email" data-magnetic>
                 <span>Torna al portfolio</span>
             </a>
         </div>`;
@@ -181,7 +219,7 @@ function showLoadError() {
         <div class="container project-error">
             <p class="section-label">Errore</p>
             <h1>Impossibile caricare il progetto</h1>
-            <a href="./#work" class="contact-email" data-magnetic>
+            <a href="/#work" class="contact-email" data-magnetic>
                 <span>Torna al portfolio</span>
             </a>
         </div>`;

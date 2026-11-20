@@ -27,28 +27,16 @@ jobs:
       - name: Configura Pages
         uses: actions/configure-pages@v5
 
-      - name: Raccogli i file del sito pubblico
-        run: |
-          mkdir public
-          cp -R index.html project.html assets css js public/
-          python3 - <<'PYTHON'
-          from hashlib import sha256
-          from pathlib import Path
+      - name: Configura Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
 
-          root = Path("public")
-          assets = {}
+      - name: Installa le dipendenze del sito
+        run: npm ci
 
-          for asset in [*root.glob("css/*.css"), *root.glob("js/*.js")]:
-              source = asset.relative_to(root).as_posix()
-              digest = sha256(asset.read_bytes()).hexdigest()[:16]
-              assets[source] = f"{source}?v={digest}"
-
-          for page in (root / "index.html", root / "project.html"):
-              html = page.read_text(encoding="utf-8")
-              for source, versioned in assets.items():
-                  html = html.replace(f'"{source}"', f'"{versioned}"')
-              page.write_text(html, encoding="utf-8")
-          PYTHON
+      - name: Prepara il sito statico
+        run: npm run build
 
       - name: Prepara i file per la pubblicazione
         uses: actions/upload-pages-artifact@v3

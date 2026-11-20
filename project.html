@@ -3,20 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!--SEOMETA-->
     <title>Portfolio — Davide D’Anna Design Solutions</title>
-    <script>
-        const projectRoute = window.location.pathname.match(/^(.*)\/progetti\/[^/]+\/?$/);
-        if (projectRoute) {
-            const base = document.createElement('base');
-            const root = new URL(window.location.origin);
-            root.pathname = projectRoute[1] + '/';
-            base.href = root.href;
-            document.head.appendChild(base);
-        }
-    </script>
-    <link rel="icon" type="image/svg+xml" href="assets/logo.svg">
-    <link rel="stylesheet" href="css/style.css">
+    <meta name="description" content="Scopri i progetti di Davide D’Anna Design Solutions.">
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="it_IT">
+    <meta property="og:site_name" content="Davide D’Anna Design Solutions">
+    <meta property="og:title" content="Portfolio — Davide D’Anna Design Solutions">
+    <meta property="og:description" content="Scopri i progetti di Davide D’Anna Design Solutions.">
+    <meta property="og:image" content="https://davidedanna.com/assets/foto-profilo.jpeg">
+    <meta property="og:image:alt" content="Ritratto di Davide D’Anna">
+    <link rel="icon" type="image/svg+xml" href="/assets/logo.svg">
+    <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
 
@@ -27,13 +24,13 @@
 
     <!-- Navigation -->
     <nav id="navbar" class="navbar hidden">
-        <a href="./#hero" class="logo" aria-label="Davide D’Anna, home">
-            <img src="assets/logo.svg" alt="" width="50" height="36">
+        <a href="/#hero" class="logo" aria-label="Davide D’Anna, home">
+            <img src="/assets/logo.svg" alt="" width="50" height="36">
         </a>
         <div class="nav-links">
-            <a href="./#work">Lavori</a>
-            <a href="./#about">Chi sono</a>
-            <a href="./#contact">Contatti</a>
+            <a href="/#work">Lavori</a>
+            <a href="/#about">Chi sono</a>
+            <a href="/#contact">Contatti</a>
         </div>
     </nav>
 
@@ -54,8 +51,8 @@
     <div id="cursor" class="cursor"></div>
     <div id="cursor-follower" class="cursor-follower"></div>
 
-    <script src="js/common.js"></script>
-    <script src="js/project-data.js"></script>
-    <script src="js/project.js"></script>
+    <script src="/js/common.js"></script>
+    <script src="/js/project-data.js"></script>
+    <script src="/js/project.js"></script>
 </body>
 </html>

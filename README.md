@@ -1,15 +1,15 @@
 # Davide D’Anna Design Solutions
 
-Portfolio statico pubblicato da GitHub Pages a ogni push su `main`.
+Portfolio statico pubblicato da GitHub Actions su [davidedanna.com](https://davidedanna.com/) a ogni push su `main`. Il sito usa percorsi dalla root del dominio (`/`).
 
-Per l’anteprima locale, eseguire `python3 -m http.server 8000` dalla root e aprire `http://localhost:8000`.
+## Anteprima locale
 
-## Collegare Sanity
+Con Node.js 22, eseguire `npm ci`, `npm run build` e `python3 -m http.server 8000 --directory public` dalla root. Aprire `http://localhost:8000`. La build copia gli asset, impacchetta il client JavaScript e aggiunge la versione ai riferimenti di CSS e script.
 
-1. Creare un account e un progetto in [Sanity Manage](https://www.sanity.io/manage). Creare un dataset pubblico chiamato `production` per i progetti da mostrare sul sito.
-2. Copiare `studio/.env.example` in `studio/.env` e compilare `SANITY_STUDIO_PROJECT_ID`. Se il dataset ha un altro nome, aggiornare anche `SANITY_STUDIO_DATASET`.
-3. Con Node.js 22.12 o successivo, eseguire `npm ci` e `npm run dev` in `studio/`. Accedere allo Studio su `http://localhost:3333` e pubblicare i progetti. Il primo elemento della galleria è la copertina.
-4. Aggiungere `https://dannadavidedesign-stack.github.io` agli origin CORS nelle impostazioni API di Sanity, con le credenziali disattivate. Per l’anteprima locale, aggiungere anche `http://localhost:8000`.
-5. Inserire gli stessi ID progetto e nome dataset in `js/project-data.js` e fare il push. Il sito legge solo i progetti pubblicati dal dataset pubblico e mostra uno stato vuoto fino al collegamento. Lasciare eventuali token fuori dal codice pubblico.
+## Sanity
 
-Per ospitare lo Studio su Sanity dopo la configurazione, eseguire `npm run deploy` in `studio/`.
+Il browser legge i documenti `project` pubblicati nel dataset pubblico `production` del progetto `fttl92eh`. Il client usa l’API CDN di Sanity con `useCdn: true`, senza token. Pubblicare i progetti dallo Studio già ospitato su Sanity. Le modifiche compaiono alla successiva apertura o al ricaricamento della pagina, tenendo conto della cache CDN. Per i contenuti del portfolio non serve un webhook o un nuovo deploy.
+
+Il dominio `https://davidedanna.com` deve essere presente in **API → CORS Origins** in [Sanity Manage](https://www.sanity.io/manage), con **Allow credentials** disattivato. Per l’anteprima locale, autorizzare anche `http://localhost:8000`.
+
+Le schede usano `cover` e `gallery` per le immagini e `body` per il testo esteso, con `description` come ripiego. Il sito genera gli URL delle immagini con il builder ufficiale Sanity e aggiorna i metadati SEO e Open Graph della scheda nel browser. I servizi di anteprima che leggono solo l’HTML iniziale ricevono i metadati generici del portfolio.
